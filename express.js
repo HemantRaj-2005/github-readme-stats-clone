@@ -16,6 +16,12 @@ router.get("/wakatime", wakatimeCard);
 router.get("/gist", gistCard);
 
 app.use("/api", router);
+app.use("/public", express.static("public"));
+
+// Serve landing page at root
+app.get("/", (req, res) => {
+  res.sendFile("index.html", { root: "public" });
+});
 
 const port = process.env.PORT || process.env.port || 9000;
 app.listen(port, "0.0.0.0", () => {

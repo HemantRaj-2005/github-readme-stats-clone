@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Readme Stats — Card Generator</title>
+    <meta
+      name="description"
+      content="Generate beautiful, dynamic GitHub stats cards for your README. Customize themes, layouts, and more."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg-primary: #0a0e1a;
+        --bg-secondary: #111827;
+        --bg-card: rgba(17, 24, 39, 0.7);
+        --bg-glass: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.08);
+        --border-hover: rgba(99, 102, 241, 0.4);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --accent: #6366f1;
+        --accent-glow: rgba(99, 102, 241, 0.25);
+        --accent-hover: #818cf8;
+        --success: #22c55e;
+        --radius: 12px;
+        --radius-lg: 16px;
+        --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Ambient background */
+      body::before {
+        content: "";
+        position: fixed;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background:
+          radial-gradient(
+            ellipse at 20% 50%,
+            rgba(99, 102, 241, 0.08) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 80% 20%,
+            rgba(139, 92, 246, 0.06) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 50% 80%,
+            rgba(59, 130, 246, 0.05) 0%,
+            transparent 50%
+          );
+        z-index: -1;
+        animation: ambientShift 20s ease-in-out infinite alternate;
+      }
+
+      @keyframes ambientShift {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          transform: translate(-2%, 3%) scale(1.05);
+        }
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* ─── Hero ─── */
+      .hero {
+        text-align: center;
+        padding: 72px 0 48px;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--accent-hover);
+        background: var(--accent-glow);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 999px;
+        margin-bottom: 20px;
+      }
+
+      .hero h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #f1f5f9, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 14px;
+      }
+
+      .hero p {
+        font-size: 1.05rem;
+        color: var(--text-secondary);
+        max-width: 520px;
+        margin: 0 auto;
+      }
+
+      /* ─── Tabs ─── */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-glass);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 4px;
+        margin-bottom: 28px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 10px 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: inherit;
+        color: var(--text-muted);
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .tab-btn:hover {
+        color: var(--text-secondary);
+      }
+      .tab-btn.active {
+        color: var(--text-primary);
+        background: var(--accent);
+        box-shadow: 0 2px 12px var(--accent-glow);
+      }
+
+      /* ─── Card panel ─── */
+      .card {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 28px;
+        margin-bottom: 24px;
+        transition: border-color var(--transition);
+      }
+
+      .card:hover {
+        border-color: var(--border-hover);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .form-group.full {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      input,
+      select {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        outline: none;
+        transition: var(--transition);
+      }
+
+      input::placeholder {
+        color: var(--text-muted);
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+
+      select {
+        cursor: pointer;
+      }
+      select option {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+      }
+
+      /* ─── Checkbox row ─── */
+      .check-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .check-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+      }
+
+      .check-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--accent);
+        cursor: pointer;
+      }
+
+      /* ─── Buttons ─── */
+      .btn-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        font-family: inherit;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .btn-primary {
+        color: #fff;
+        background: var(--accent);
+        box-shadow: 0 2px 16px var(--accent-glow);
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 24px var(--accent-glow);
+      }
+
+      .btn-secondary {
+        color: var(--text-secondary);
+        background: var(--bg-glass);
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        color: var(--text-primary);
+        border-color: var(--border-hover);
+      }
+
+      .btn-secondary.copied {
+        color: var(--success);
+        border-color: rgba(34, 197, 94, 0.3);
+      }
+
+      /* ─── Preview ─── */
+      .preview-section {
+        margin-top: 8px;
+      }
+
+      .preview-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 14px;
+      }
+
+      .preview-frame {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .preview-frame img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        transition: opacity var(--transition);
+      }
+
+      .preview-placeholder {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      .preview-placeholder svg {
+        display: block;
+        margin: 0 auto 10px;
+        opacity: 0.3;
+      }
+
+      /* Loading spinner */
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        position: absolute;
+      }
+
+      .spinner.hidden {
+        display: none;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ─── Markdown box ─── */
+      .md-box {
+        margin-top: 20px;
+        display: none;
+      }
+
+      .md-box.visible {
+        display: block;
+      }
+
+      .md-box pre {
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 18px;
+        font-size: 0.82rem;
+        color: var(--accent-hover);
+        overflow-x: auto;
+        word-break: break-all;
+        white-space: pre-wrap;
+        font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+      }
+
+      /* ─── Footer ─── */
+      footer {
+        text-align: center;
+        padding: 48px 0 28px;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+      }
+
+      footer a {
+        color: var(--accent-hover);
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ─── Responsive ─── */
+      @media (max-width: 600px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .tabs {
+          flex-direction: column;
+        }
+        .btn-row {
+          flex-direction: column;
+        }
+        .hero {
+          padding: 48px 0 32px;
+        }
+      }
+
+      /* Tab content hide/show */
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-badge">⚡ Self-Hosted Instance</div>
+        <h1>GitHub Readme Stats</h1>
+        <p>
+          Generate beautiful, dynamic stats cards for your GitHub README —
+          powered by your own instance.
+        </p>
+      </section>
+
+      <!-- Tabs -->
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" data-tab="stats" role="tab">
+          Stats Card
+        </button>
+        <button class="tab-btn" data-tab="langs" role="tab">
+          Top Languages
+        </button>
+        <button class="tab-btn" data-tab="pin" role="tab">Repo Pin</button>
+      </div>
+
+      <!-- ═══════ Stats Card ═══════ -->
+      <div id="tab-stats" class="tab-content active">
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="stats-username">GitHub Username</label>
+              <input
+                type="text"
+                id="stats-username"
+                placeholder="e.g. octocat"
+              />
+            </div>
+            <div class="form-group">
+              <label for="stats-theme">Theme</label>
+              <select id="stats-theme"></select>
+            </div>
+            <div class="form-group full">
+              <label>Options</label>
+              <div class="check-row">
+                <label class="check-item"
+                  ><input type="checkbox" id="stats-icons" checked /> Show
+                  Icons</label
+                >
+                <label class="check-item"
+                  ><input type="checkbox" id="stats-allcommits" /> All
+                  Commits</label
+                >
+                <label class="check-item"
+                  ><input type="checkbox" id="stats-hideborder" /> Hide
+                  Border</label
+                >
+                <label class="check-item"
+                  ><input type="checkbox" id="stats-hiderank" /> Hide
+                  Rank</label
+                >
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="stats-hide">Hide Stats (comma-sep)</label>
+              <input
+                type="text"
+                id="stats-hide"
+                placeholder="e.g. contribs,prs"
+              />
+            </div>
+            <div class="form-group">
+              <label for="stats-customtitle">Custom Title</label>
+              <input
+                type="text"
+                id="stats-customtitle"
+                placeholder="My GitHub Stats"
+              />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="stats-generate">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+              Generate
+            </button>
+            <button class="btn btn-secondary" id="stats-copy" disabled>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+              </svg>
+              Copy Markdown
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ Top Languages ═══════ -->
+      <div id="tab-langs" class="tab-content">
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="langs-username">GitHub Username</label>
+              <input
+                type="text"
+                id="langs-username"
+                placeholder="e.g. octocat"
+              />
+            </div>
+            <div class="form-group">
+              <label for="langs-theme">Theme</label>
+              <select id="langs-theme"></select>
+            </div>
+            <div class="form-group">
+              <label for="langs-layout">Layout</label>
+              <select id="langs-layout">
+                <option value="normal">Normal</option>
+                <option value="compact">Compact</option>
+                <option value="donut">Donut</option>
+                <option value="donut-vertical">Donut Vertical</option>
+                <option value="pie">Pie</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="langs-count">Languages Count</label>
+              <input
+                type="number"
+                id="langs-count"
+                min="1"
+                max="20"
+                value="5"
+              />
+            </div>
+            <div class="form-group full">
+              <label>Options</label>
+              <div class="check-row">
+                <label class="check-item"
+                  ><input type="checkbox" id="langs-hideborder" /> Hide
+                  Border</label
+                >
+                <label class="check-item"
+                  ><input type="checkbox" id="langs-hideprogress" /> Hide
+                  Progress</label
+                >
+              </div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="langs-generate">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+              Generate
+            </button>
+            <button class="btn btn-secondary" id="langs-copy" disabled>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+              </svg>
+              Copy Markdown
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ Repo Pin ═══════ -->
+      <div id="tab-pin" class="tab-content">
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pin-username">GitHub Username</label>
+              <input type="text" id="pin-username" placeholder="e.g. octocat" />
+            </div>
+            <div class="form-group">
+              <label for="pin-repo">Repository Name</label>
+              <input type="text" id="pin-repo" placeholder="e.g. Hello-World" />
+            </div>
+            <div class="form-group">
+              <label for="pin-theme">Theme</label>
+              <select id="pin-theme"></select>
+            </div>
+            <div class="form-group">
+              <label>Options</label>
+              <div class="check-row" style="padding-top: 6px">
+                <label class="check-item"
+                  ><input type="checkbox" id="pin-showowner" /> Show
+                  Owner</label
+                >
+                <label class="check-item"
+                  ><input type="checkbox" id="pin-hideborder" /> Hide
+                  Border</label
+                >
+              </div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="pin-generate">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+              Generate
+            </button>
+            <button class="btn btn-secondary" id="pin-copy" disabled>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+              </svg>
+              Copy Markdown
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ Preview ═══════ -->
+      <div class="preview-section">
+        <div class="preview-label">Live Preview</div>
+        <div class="preview-frame" id="preview-frame">
+          <div class="spinner hidden" id="spinner"></div>
+          <div class="preview-placeholder" id="preview-placeholder">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <path d="M3 15l4-4a2 2 0 012.8 0L14 15" />
+              <path d="M14 13l1-1a2 2 0 012.8 0L21 15" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+            </svg>
+            Enter a username and click Generate
+          </div>
+          <img
+            id="preview-img"
+            style="display: none"
+            alt="GitHub Stats Preview"
+          />
+        </div>
+      </div>
+
+      <!-- Markdown output -->
+      <div class="md-box" id="md-box">
+        <div class="preview-label">Markdown Embed Code</div>
+        <pre id="md-code"></pre>
+      </div>
+
+      <footer>
+        Powered by
+        <a
+          href="https://github.com/anuraghazra/github-readme-stats"
+          target="_blank"
+          rel="noopener"
+          >github-readme-stats</a
+        >
+        — self-hosted instance
+      </footer>
+    </div>
+
+    <script>
+      // ─── Theme list ───
+      const THEMES = [
+        "default",
+        "transparent",
+        "shadow_red",
+        "shadow_green",
+        "shadow_blue",
+        "dark",
+        "radical",
+        "merko",
+        "gruvbox",
+        "gruvbox_light",
+        "tokyonight",
+        "onedark",
+        "cobalt",
+        "synthwave",
+        "highcontrast",
+        "dracula",
+        "prussian",
+        "monokai",
+        "vue",
+        "vue-dark",
+        "shades-of-purple",
+        "nightowl",
+        "buefy",
+        "blue-green",
+        "algolia",
+        "great-gatsby",
+        "darcula",
+        "bear",
+        "solarized-dark",
+        "solarized-light",
+        "chartreuse-dark",
+        "nord",
+        "gotham",
+        "material-palenight",
+        "graywhite",
+        "vision-friendly-dark",
+        "ayu-mirage",
+        "midnight-purple",
+        "calm",
+        "flag-india",
+        "omni",
+        "react",
+        "jolly",
+        "maroongold",
+        "yeblu",
+        "blueberry",
+        "slateorange",
+        "kacho_ga",
+        "outrun",
+        "ocean_dark",
+        "city_lights",
+        "github_dark",
+        "github_dark_dimmed",
+        "discord_old_blurple",
+        "aura_dark",
+        "panda",
+        "noctis_minimus",
+        "cobalt2",
+        "swift",
+        "aura",
+        "apprentice",
+        "moltack",
+        "codeSTACKr",
+        "rose_pine",
+        "catppuccin_latte",
+        "catppuccin_mocha",
+        "date_night",
+        "one_dark_pro",
+        "rose",
+        "holi",
+        "neon",
+        "blue_navy",
+        "calm_pink",
+        "ambient_gradient",
+      ];
+
+      // Populate all theme selects
+      document.querySelectorAll("select[id$='-theme']").forEach((sel) => {
+        THEMES.forEach((t) => {
+          const opt = document.createElement("option");
+          opt.value = t;
+          opt.textContent = t
+            .replace(/[_-]/g, " ")
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+          sel.appendChild(opt);
+        });
+        sel.value = "tokyonight";
+      });
+
+      // ─── Tab switching ───
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const tabContents = document.querySelectorAll(".tab-content");
+
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach((b) => b.classList.remove("active"));
+          tabContents.forEach((c) => c.classList.remove("active"));
+          btn.classList.add("active");
+          document
+            .getElementById("tab-" + btn.dataset.tab)
+            .classList.add("active");
+        });
+      });
+
+      // ─── State ───
+      const baseUrl = window.location.origin;
+      let currentUrl = "";
+
+      const $ = (id) => document.getElementById(id);
+      const previewImg = $("preview-img");
+      const placeholder = $("preview-placeholder");
+      const spinner = $("spinner");
+      const mdBox = $("md-box");
+      const mdCode = $("md-code");
+
+      function showLoading() {
+        previewImg.style.display = "none";
+        placeholder.style.display = "none";
+        spinner.classList.remove("hidden");
+      }
+
+      function showPreview(url) {
+        currentUrl = url;
+        previewImg.src = url;
+        previewImg.onload = () => {
+          spinner.classList.add("hidden");
+          previewImg.style.display = "block";
+        };
+        previewImg.onerror = () => {
+          spinner.classList.add("hidden");
+          placeholder.style.display = "block";
+          placeholder.textContent =
+            "⚠ Failed to load — check username / PAT token";
+          previewImg.style.display = "none";
+        };
+
+        // Show markdown
+        mdCode.textContent = `![GitHub Stats](${url})`;
+        mdBox.classList.add("visible");
+      }
+
+      // ─── Build URL helpers ───
+      function buildStatsUrl() {
+        const u = $("stats-username").value.trim();
+        if (!u) return null;
+        const params = new URLSearchParams();
+        params.set("username", u);
+        params.set("theme", $("stats-theme").value);
+        if ($("stats-icons").checked) params.set("show_icons", "true");
+        if ($("stats-allcommits").checked)
+          params.set("include_all_commits", "true");
+        if ($("stats-hideborder").checked) params.set("hide_border", "true");
+        if ($("stats-hiderank").checked) params.set("hide_rank", "true");
+        const hide = $("stats-hide").value.trim();
+        if (hide) params.set("hide", hide);
+        const title = $("stats-customtitle").value.trim();
+        if (title) params.set("custom_title", title);
+        return `${baseUrl}/api?${params.toString()}`;
+      }
+
+      function buildLangsUrl() {
+        const u = $("langs-username").value.trim();
+        if (!u) return null;
+        const params = new URLSearchParams();
+        params.set("username", u);
+        params.set("theme", $("langs-theme").value);
+        params.set("layout", $("langs-layout").value);
+        params.set("langs_count", $("langs-count").value);
+        if ($("langs-hideborder").checked) params.set("hide_border", "true");
+        if ($("langs-hideprogress").checked)
+          params.set("hide_progress", "true");
+        return `${baseUrl}/api/top-langs?${params.toString()}`;
+      }
+
+      function buildPinUrl() {
+        const u = $("pin-username").value.trim();
+        const r = $("pin-repo").value.trim();
+        if (!u || !r) return null;
+        const params = new URLSearchParams();
+        params.set("username", u);
+        params.set("repo", r);
+        params.set("theme", $("pin-theme").value);
+        if ($("pin-showowner").checked) params.set("show_owner", "true");
+        if ($("pin-hideborder").checked) params.set("hide_border", "true");
+        return `${baseUrl}/api/pin?${params.toString()}`;
+      }
+
+      // ─── Generate handlers ───
+      function generate(builderFn, copyBtnId) {
+        const url = builderFn();
+        if (!url) {
+          placeholder.style.display = "block";
+          placeholder.innerHTML = `<span style="color:#f87171">Please fill in the required fields</span>`;
+          previewImg.style.display = "none";
+          return;
+        }
+        showLoading();
+        showPreview(url);
+        $(copyBtnId).disabled = false;
+      }
+
+      $("stats-generate").addEventListener("click", () =>
+        generate(buildStatsUrl, "stats-copy"),
+      );
+      $("langs-generate").addEventListener("click", () =>
+        generate(buildLangsUrl, "langs-copy"),
+      );
+      $("pin-generate").addEventListener("click", () =>
+        generate(buildPinUrl, "pin-copy"),
+      );
+
+      // ─── Copy handlers ───
+      function copyMarkdown(btnId) {
+        if (!currentUrl) return;
+        const md = `![GitHub Stats](${currentUrl})`;
+        navigator.clipboard.writeText(md).then(() => {
+          const btn = $(btnId);
+          btn.classList.add("copied");
+          const origHTML = btn.innerHTML;
+          btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+          setTimeout(() => {
+            btn.classList.remove("copied");
+            btn.innerHTML = origHTML;
+          }, 2000);
+        });
+      }
+
+      $("stats-copy").addEventListener("click", () =>
+        copyMarkdown("stats-copy"),
+      );
+      $("langs-copy").addEventListener("click", () =>
+        copyMarkdown("langs-copy"),
+      );
+      $("pin-copy").addEventListener("click", () => copyMarkdown("pin-copy"));
+
+      // Enter key triggers generate
+      document
+        .querySelectorAll("input[type=text], input[type=number]")
+        .forEach((inp) => {
+          inp.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              const panel = inp.closest(".tab-content");
+              if (panel) panel.querySelector(".btn-primary").click();
+            }
+          });
+        });
+    </script>
+  </body>
+</html>
